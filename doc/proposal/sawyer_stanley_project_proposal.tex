@@ -1,0 +1,113 @@
+\documentclass[12pt]{article}
+
+\usepackage{mathtools}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{subfiles}
+\usepackage{verbatim}
+\usepackage{physics}
+\usepackage{biblatex}
+\usepackage[margin=1in]{geometry}
+\addbibresource{refs.bib}
+
+\newcommand{\parti}[2]{ \frac{\partial#1}{\partial#2} }
+\newcommand{\errorterm}[2]{ \left(\frac{\partial#1}{\partial#2} \Delta#2\right)^2 }
+\newcommand{\tento}[1]{ \times\@ 10^{#1} }
+\newcommand{\secs}{\mbox{s}}
+\newcommand{\Hz}{\mbox{Hz}}
+\newcommand{\kgs}{\mbox{kg}}
+\newcommand{\mets}{\mbox{m}}
+\newcommand{\cms}{\mbox{cm}}
+\newcommand{\newt}{\mbox{N}}
+\newcommand{\amps}{\mbox{A}}
+\newcommand{\joules}{\mbox{J}}
+\newcommand{\volts}{\mbox{V}}
+\newcommand{\tesla}{\mbox{T}}
+\newcommand{\emratio}{\mbox{C/kg}}
+\newcommand{\psid}{\dot{\psi}}
+\newcommand{\psidd}{\ddot{\psi}}
+\newcommand{\bunits}{\mbox{kgm}^2\mbox{s}^{-1}}
+\newcommand{\avgemratio}{\bar{\frac{e}{m_e}}}
+\newcommand{\rbrak}[1]{\left(#1\right)}
+\newcommand{\sbrak}[1]{\left[#1\right]}
+\newcommand{\cbrak}[1]{\left\{#1\right\}}
+\newcommand{\abrak}[1]{\left<#1\right>}
+\newcommand{\bbrak}[1]{\left|#1\right|}
+\newcommand{\rdot}{\dot{r}}
+\newcommand{\rddot}{\ddot{r}}
+\newcommand{\thetadot}{\dot{\theta}}
+\newcommand{\thetaddot}{\ddot{\theta}}
+\newcommand{\phidot}{\dot{\phi}}
+\newcommand{\phiddot}{\ddot{\phi}}
+
+\newcommand{\class}{COMP 4911}
+\newcommand{\examnum}{Bookdex: Project Proposal}
+\newcommand{\examdate}{February 28, 2024}
+\newcommand{\yourname}{Sawyer Stanley}
+\newcommand{\studentid}{0289276}
+
+\begin{document}
+\pagestyle{plain}
+
+\vspace*{\fill}
+\begin{center}
+    \yourname\\
+    \studentid\\
+    \class\\
+    \examnum\\
+    \examdate\\
+\end{center}
+\vspace*{\fill}
+
+\thispagestyle{empty}
+\newpage
+%--
+
+\section*{Overview}
+% PREMISE
+Bookdex is an application that allows a client to remotely query a database of select books. A home library will then be accessible from a mobile device. Thus, next time one is browsing a book retailer's shelves, one can use Bookdex to confirm that a desirable book is or is not currently owned ensuring that unnecessary copies are not purchased. Note, the contents of the books are not accessible. Bookdex is a tool for browsing titles and confirming existence.
+
+% HOW THE DATABASE SERVER WILL WORK
+To make Bookdex a reality, a database server within which to store books will be required. Each user will have an SQLite database on the C\# server. The server will be a console application, avoiding unnecessary work on GUI design. When the server recieves a query, it will attempt to pose that query to the database and return the results to the client. Creation and interactions with the database will be streamlined using packages sqlite-net-pcl\cite{sqlitenetpcl} and SQLitePCLRaw.bundle\_green\cite{sqlitepclrawbundlegreen}. These packages contain useful attributes for defining relations within C\# classes and useful methods for querying an SQL database.
+
+The server will contain an additional SQLite database which will store client login information. This database is essential for not only login purposes, but for ensuring a client gets access to only their database of books. This is because database file names will correspond with a client's distinct username.
+
+% HOW THE CLIENT WILL WORK (LOGIN, QUERYING)
+The client side of Bookdex will be realized through a .NET MAUI application\cite{maui}, allowing Bookdex to be easily enjoyed on multiple platforms. Unlike the server, the client will not be a console application but will consist of a simple GUI. This way, a user can intuitively create and send their queries to the server. If the client successfully logs in or creates an account, they will be prompted with a text field within which they can enter a book title or author to send to the server. Database entries that match the query will then be returned to the client and presented as a list. This is the simplest interaction that must be implemented. Additional quality of life features will be covered later.
+
+% COMMUNICATING BETWEEN CLIENT AND SERVER
+When researching protocols for querying database servers, one of the more promising results was the tabular data stream protocol (TDS)\cite{tds}. Upon looking closer at TDS specifications, only a handful of messages need be supported to make Bookdex functional. On the client side, these messages include 
+
+\begin{description}
+    \item[(1) Pre-Login] As the name suggests, this message is sent by the client prior to the login message as a ``handshake'' to set up encryption.
+    \item[(2) Login] Authentication is performed at this step. The client, requesting to make a TDS connection with the server, sends their credentials to be accepted or rejected from the server.
+    \item[(3) SQL Batch] This type of message contians SQL commands to be processed by the server.
+    \item[(4) Bulk Load] While the SQL Batch message is similar to writing an SQL command to \textit{retrieve} data from a database, the Bulk Load message is akin to a bulk \textit{insert} into the database.
+    \item[(5) Attention] This message is sent when the client wishes to interrupt and cancel the current request.
+\end{description}
+
+Server side messages include
+
+\begin{description}
+    \item[(1) Pre-Login Response] This message is a response to the pre-login message from the client to complete the ``handshake'' and setting up encryption.
+    \item[(2) Login Response] Having recieved a login message from the client, the server responds with a login response message containing server information.
+    \item[(3) Row Data] A mesage describing row and column (despite the name) information requested by the client. This is similar to a relation being returned after an SQL command.
+    \item[(4) Response Completion] Indicates whether there are more results to still be returned by the server to the client.
+    \item[(5) Error and Info] The naming of these message types are exactly as expected. Error messages are sent to the client when an error occurs, and info messages provide additional information.
+    \item[(6) Attention Acknowledgment] When the server recieves an attention message from the client, an attention acknowledgment is sent in response. The client must read returned data until this message is recieved.
+\end{description}
+
+By implementing this subset of messages of TDS, Bookdex can be realized.
+
+\section*{Additional Ideas}
+While my priority will be the successful implementation of part of TDS demonstrated through a minimalistic Bookdex, there are a handful of other ideas I would be interested in attempting if time permits.
+
+In the base application, Bookdex will permit users to search their library by title and/or author. This will make the construction of the SQL queries simple. Adding additional features to how a client can search (filtering results by genre, publisher, etc.) will improve the overall quality of life.
+
+Bookdex users will have access to their own library. It would be interesting to allow users to share their libraries with others, providing other users with read-only access. I imagine this being useful in the scenario where Alice had read most of her books and wants inspiration on what to read next from Bob. So, Bob gives Alice read-only access to his library.
+
+Because I imagine Bookdex's main purpose being checking the existence of books within one's library, I'm interested in attempting some form of results caching. Perhaps a user is preparing to browse through some potentially new books in a location where they will not have access to the internet. Storing some search results locally prior to being disconnected to the internet would allow them to continue using the application. This is similar to how Google Maps continues to provide directions so long as you've planned the route prior to leaving.
+
+\printbibliography
+
+\end{document}
