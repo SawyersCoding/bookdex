@@ -90,11 +90,20 @@ Acronyms are often used throughout this document. Common acronyms include:
 \section{UML Class Diagrams}\label{sec:uml}
     Recognizing that this is difficult to see, .png versions have been uploaded to the \href{https://github.com/SawyersCoding/bookdex/tree/main}{GitHub repository} for for this project.
 
-\section{State Diagrams}\label{sec:state}
+    The (current) UML class diagram for the TDS protocol is shown in Figure~\ref{fig:tdsuml}.
+
+    \begin{figure}[h]\label{fig:tdsuml}
+        \includegraphics[width=0.9\textwidth]{uml_tds.png}
+        \caption{UML diagram outlining the structure of the TDS protocol implementation.}
+    \end{figure}
+
+% \section{State Diagrams}\label{sec:state}
 
 \section{Retrospectives}\label{sec:retro}
     \subsection{Week 1}\label{sec:retro:week1}
         This week began with work on the UML class diagram for the TDS protocol. During its creatation, reference \textbf{INSERT TDS MANUAL REFERENCE} was consulted regularly. This slowed progress as the TDS protocol is nuanced. For example, there are a handful of different types of tokens to be used when transmitting a token stream, each with their own rules. To add to this, not all messages transmitted are token streams. Decomposing the intricate case-work into meaningful classes has helped with understanding the protocol overall.
+
+        As seen in Section~\ref{sec:uml}, various timers are used by the client to ensure the client is not waiting too long for a response from the server. It's important to note that TDS does not require these timers. Initial implementation will omit these timers for simplicity's and time's sake.
 
 \section{Decisions}\label{sec:dec}
     While not every decision is outlined in this section, decisions that were made unexpectedly or creatively are included.
@@ -104,6 +113,6 @@ Acronyms are often used throughout this document. Common acronyms include:
 
         Anticipating user input to come from various input streams, I planned to create a custom input stream to which all input could be written and from which the program could consistently read. Upon researching halting the program to wait for input on said stream, I began to fear I had gone astray. Instead, I opted to create custom I/O, namely, TDSIO (Tabular Data Stream Protocol Input/Output). Now, when a user writes to the ``input stream'', their input is enqueued to a queue of inputs. When these inputs are flushed, a notification of a complete task will be sent to the listening TDSClientLoggedInState. The queue is then emptied and the TDSClientLoggedInState can do with the inputs what it will. This way, implementation of a view, whether GUI or console, will be supported (I think).
 
-\section{User Guide}\label{sec:userguide}
+% \section{User Guide}\label{sec:userguide}
 
 \end{document}
