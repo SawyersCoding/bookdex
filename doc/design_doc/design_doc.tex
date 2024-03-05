@@ -9,6 +9,7 @@
 \usepackage{hyperref}
 \usepackage[margin=1in]{geometry}
 
+\graphicspath{{media}}
 \hypersetup{
     colorlinks=true,
     linkcolor=black,
@@ -72,60 +73,19 @@
 \tableofcontents
 \newpage
 
-\section{Preface}\label{sec:preface}
-The following document contains justifications annd explainations of the decisions made during the development of Bookdex.
+\subfile{preface/preface.tex}
 
-Acronyms are often used throughout this document. Common acronyms include:
+\subfile{overview/overview.tex}
 
-\begin{itemize}
-    \item \textbf{TDS}: Tabular Data Stream
-    \item \textbf{GUI}: Graphical User Interface
-    \item \textbf{UML}: Unified Modeling Language
-    \item \textbf{I/O or IO}: Input/Output
-\end{itemize}
+\subfile{dev_plan/dev_plan.tex}
 
-\section{Overview}\label{sec:overview}
-    Bookdex is an application from which a user may access a server database of their home library. Note, the user can not read books through Bookdex, only query their existence.
+\subfile{classes/classes.tex}
 
-    Bookdex makes use of the TDS protocol when transmitting messages between client and server. TDS ensures the secure transmission of SQL queries and the results to those queries. TDS specifications were losely followed due to time constraints. For more information on which corners were cut, see Section~\ref{sec:dec}.
+\subfile{interactions/interactions.tex}
 
-\section{Development Plan}\label{sec:plan}
+\subfile{retrospectives/retrospectives.tex}
 
-    \begin{figure}[h]
-        \includegraphics[width=0.9\textwidth]{gantt_chart.png}
-        \caption{Gantt chart outline for the development plan for Bookdex.}\label{fig:gantt}
-    \end{figure}
-
-\newpage
-\section{UML Class Diagrams}\label{sec:uml}
-    Recognizing that this is difficult to see, .png versions have been uploaded to the \repo{GitHub repository} for this project.
-
-    The (current) UML class diagram for the TDS protocol is shown in Figure~\ref{fig:tdsuml}.
-
-    \begin{figure}[h]
-        \includegraphics[width=0.9\textwidth]{uml_tds.png}
-        \caption{UML diagram outlining the structure of the TDS protocol implementation.}\label{fig:tdsuml}
-    \end{figure}
-
-% \section{State Diagrams}\label{sec:state}
-
-\section{Retrospectives}\label{sec:retro}
-    \subsection{Week 1}\label{sec:retro:week1}
-        This week began with work on the UML class diagram for the TDS protocol. During its creatation, reference \textbf{INSERT TDS MANUAL REFERENCE} was consulted regularly. This slowed progress as the TDS protocol is nuanced. For example, there are a handful of different types of tokens to be used when transmitting a token stream, each with their own rules. To add to this, not all messages transmitted are token streams. Decomposing the intricate case-work into meaningful classes has helped with understanding the protocol overall.
-
-\section{Decisions}\label{sec:dec}
-    While not every decision is outlined in this section, decisions that were made unexpectedly or creatively are included.
-
-    \subsection{TDS Seperate Implementation}\label{sec:dec:seperatetds}
-        Ideally, this implementation of the TDS protocol could be bundled and imported into other server database projects. Thus, I have decided to seperate its implementation from the main Bookdex implementation. This is visible in the \repo{project repository} as the ``bookdex'' directory is seperate from the ``TabularDataStreamProtocol'' directory. Hopefully, this approach makes testing TDS easier as it will be modular.
-
-    \subsection{Omitting Timers}\label{sec:dec:timers}
-        As can be seen in Figure~\ref{fig:tdsuml}, various timers are used by the client to ensure the client is not waiting too long for a response from the server. It's important to note that TDS does not require these timers. Initial implementation will omit these timers for simplicity's and time's sake.
-
-    \subsection{Client-side I/O}\label{sec:dec:clientio}
-        As seen in Section~\ref{sec:uml}, the states in which a TDSClient can exist handle the Listen() operation. Initially, Listen() was intended for receiving packets send from the server to the client. However, when in the TDSClientLoggedInState, the user should be able to enter a request to be sent to the server before the client listens for a response. The definition of Listen() was then expanded to include ``listening'' for input from the user.
-
-        Anticipating user input to come from various input streams, I planned to create a custom input stream to which all input could be written and from which the program could consistently read. Upon researching halting the program to wait for input on said stream, I began to fear I had gone astray. Instead, I opted to create custom I/O, namely, TDSIO (Tabular Data Stream Protocol Input/Output). Now, when a user writes to the ``input stream'', their input is enqueued to a queue of inputs. When these inputs are flushed, a notification of a complete task will be sent to the listening TDSClientLoggedInState. The queue is then emptied and the TDSClientLoggedInState can do with the inputs what it will. This way, implementation of a view, whether GUI or console, will be supported (I think).
+\subfile{decisions/decisions.tex}
 
 % \section{User Guide}\label{sec:userguide}
 
