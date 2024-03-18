@@ -3,9 +3,27 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.8.34322.80
 MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "message", "message", "{3F3ED36F-777E-4DB4-9B05-E77329FE0D7D}"
+	ProjectSection(SolutionItems) = preProject
+		IMessage.cs = IMessage.cs
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "client", "client", "{24F3D2F8-61C6-4863-8EAC-2008DBD8EEE6}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "server", "server", "{BBD4463E-F8B2-40F6-800F-ECABEAE0C101}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tds", "tds", "{F369D4B6-6AF3-4B67-B34F-9595B8DEA178}"
+	ProjectSection(SolutionItems) = preProject
+		ITDSSender.cs = ITDSSender.cs
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{24F3D2F8-61C6-4863-8EAC-2008DBD8EEE6} = {F369D4B6-6AF3-4B67-B34F-9595B8DEA178}
+		{BBD4463E-F8B2-40F6-800F-ECABEAE0C101} = {F369D4B6-6AF3-4B67-B34F-9595B8DEA178}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C2EE118C-68D8-44B4-99A3-B10B34CD856D}
