@@ -1,18 +1,35 @@
 ﻿using tds.message;
 using tds.tds.client.state;
 using tds.util;
+using System.Net;
+using System.Net.Sockets;
 
 namespace tds.tds.client;
 
 public class TDSClient : ITDSListener, ITDSSender, IStateMachine<ITDSClientState>
 {
-    private ITDSClientState state;
+    private readonly string ip;
+    private readonly int port;
+    private readonly TcpClient tcpClient;
+    private readonly NetworkStream stream;
     private readonly IFactory<TDSClientStateType, ITDSClientState> factory;
+    private ITDSClientState state;
 
     public IFactory<TDSClientStateType, ITDSClientState> Factory => factory; // So states can access factory.
+    public string IP => ip;
+    public int Port => port;
+    
 
-    public TDSClient()
+    public TDSClient(string ip, int port)
     {
+        // Establish regular TCP connection.
+        tcpClient = new TcpClient(AddressFamily.InterNetwork);
+        tcpClient.Connect(ip, port);
+        stream = tcpClient.GetStream();
+
+        // Initialize rest of client if successful connection is established.
+        this.ip = ip;
+        this.port = port;
         factory = new TDSClientStateFactory(this);
         state = factory.Get(TDSClientStateType.INITIAL_TLS_NEGOTIATION);
         state.OnStateActivate();
@@ -20,7 +37,7 @@ public class TDSClient : ITDSListener, ITDSSender, IStateMachine<ITDSClientState
 
     public void ChangeState(ITDSClientState state)
     {
-        this.state?.OnStateDeactivate();
+        this.state.OnStateDeactivate();
         this.state = state;
         this.state.OnStateActivate();
     }
