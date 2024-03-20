@@ -49,7 +49,17 @@ public class TDSClient : ITDSListener, ITDSSender, IStateMachine<ITDSClientState
 
     public void SendMessage(IMessage message)
     {
-        // Actually send message. States will use this.
-        throw new NotImplementedException();
+        IPacket packet;
+        byte[] packetBytes;
+        for (int i = 0; i < message.NumPackets; i++)
+        {
+            // Extract data from next packet
+            packet = message.GetPacket(i);
+            packetBytes = packet.GetBytes();
+
+            // Send next packet containing next part of message
+            Console.WriteLine("Sending packet (" + (i + 1) + ") of message...");
+            stream.Write(packetBytes, 0, packetBytes.Length);
+        }
     }
 }
