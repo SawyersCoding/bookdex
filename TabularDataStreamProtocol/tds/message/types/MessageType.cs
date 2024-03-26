@@ -1,8 +1,8 @@
-﻿
-namespace tds.message;
+﻿namespace tds.message.types;
 
 public enum MessageType
 {
+    UNASSIGNED = 0x00,
     SQL_BATCH = 0x01,
     PRE_TDS7_LOGIN = 0x02,
     RCP = 0x03,

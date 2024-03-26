@@ -1,5 +1,4 @@
-﻿
-namespace tds.message;
+﻿namespace tds.message.types;
 
 public enum PacketStatus
 {
